@@ -1,0 +1,32 @@
+// Context-aware mental health support
++ my name is *
+- Nice to meet you, <star>! How are you feeling today?
+
++ i feel *
+- I'm here to listen. Can you tell me more about why you're feeling <star>?
+
++ i am stressed
+- Stress can be tough. Have you tried deep breathing or journaling?
+
++ i have anxiety
+- Anxiety can be overwhelming. Have you considered mindfulness exercises?
+
++ i need help
+- I'm here for you. Can you share more details about how you're feeling?
+
++ *
+- I understand. You're not alone in this. Would you like to talk more about it?
+
++ [*] (anxious|anxiety) [*] presentation [*]
+- Public speaking anxiety is common. Here are some tips:
+^ 1. Practice deep breathing before and during
+^ 2. Prepare and rehearse thoroughly
+^ 3. Visualize success
+^ Would you like to explore any of these strategies?
+
++ [*] cant sleep [*]
+- Sleep difficulties can be challenging. Consider:
+^ 1. Maintaining a regular sleep schedule
+^ 2. Avoiding screens before bed
+^ 3. Trying relaxation techniques
+^ Which of these would you like to learn more about?
