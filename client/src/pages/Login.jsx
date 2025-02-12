@@ -1,31 +1,21 @@
-import { useState } from 'react';
+import { SignIn } from '@clerk/clerk-react';
 
 export default function Login() {
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
-
-	const handleLogin = () => {
-		alert('Login functionality to be implemented.');
-	};
-
-	return (
-		<div className='h-screen flex flex-col items-center justify-center bg-[#0a0b10] text-white'>
-			<h2 className='text-3xl mb-4'>Login</h2>
-			<input
-				type='email'
-				className='p-2 mb-2 w-64 bg-gray-800 text-white rounded'
-				placeholder='Email'
-				value={email}
-				onChange={(e) => setEmail(e.target.value)}
-			/>
-			<input
-				type='password'
-				className='p-2 mb-4 w-64 bg-gray-800 text-white rounded'
-				placeholder='Password'
-				value={password}
-				onChange={(e) => setPassword(e.target.value)}
-			/>
-			<button onClick={handleLogin} className='px-6 py-2 bg-blue-500 rounded hover:bg-blue-600'>Login</button>
-		</div>
-	);
+  return (
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-sm text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Welcome Back</h1>
+        <SignIn
+          onlyThirdPartyProviders
+          appearance={{
+            elements: {
+              rootBox: 'w-full',
+              card: 'shadow-none p-0',
+              socialButtonsVariant: 'blockButton',
+            },
+          }}
+        />
+      </div>
+    </div>
+  );
 }
