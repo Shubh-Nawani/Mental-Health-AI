@@ -48,13 +48,30 @@ export const getBestResponse = async (message, chatHistory) => {
 };
 
 export const chatWithBot = async (req, res) => {
-  const { userId, message } = req.body;
+  const { userId, message, chatId } = req.body;
   
   try {
     const cleanMessage = validateChatInput(message);
-    let chatHistory = await ChatHistory.findOne({ userId });
+    
+    // If no chatId is provided, create a new chat
+    let chatHistory;
+    if (!chatId) {
+      chatHistory = new ChatHistory({
+        userId,
+        title: "New Chat",
+        messages: []
+      });
+      await chatHistory.save();
+    } else {
+      chatHistory = await ChatHistory.findOne({ 
+        _id: chatId,
+        userId,
+        isActive: true 
+      });
+    }
+
     if (!chatHistory) {
-      chatHistory = new ChatHistory({ userId, messages: [] });
+      return res.status(404).json({ error: "Chat not found" });
     }
 
     logInfo(`Processing message from ${userId}: "${cleanMessage}"`);

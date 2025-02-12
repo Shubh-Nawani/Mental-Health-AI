@@ -7,32 +7,32 @@ const ChatSchema = new mongoose.Schema({
     required: true,
     index: true 
   },
+  title: {
+    type: String,
+    default: "New Chat",
+    required: true
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
   messages: [{
     role: { type: String, enum: ["user", "bot"], required: true },
     text: { type: String, required: true },
-    source: { 
-      type: String, 
-      enum: ["rivescript", "huggingface", "gemini", "fallback"],
-      index: true
-    },
+    source: { type: String, enum: ["rivescript", "huggingface", "gemini", "fallback"] },
     confidence: {
       type: Number,
       min: 0,
       max: 1,
-      default: 0.5,
-      validate: v => !isNaN(v) && v >= 0 && v <= 1
+      default: 0.5
     },
     metrics: {
       type: Map,
-      of: Number,
-      default: () => new Map()
+      of: Number
     },
-    timestamp: { type: Date, default: Date.now, index: true }
+    timestamp: { type: Date, default: Date.now }
   }],
-  lastInteraction: { type: Date, default: Date.now, index: true },
-  maxMessages: { type: Number, default: 100 }
-}, {
-  timestamps: true
+  lastInteraction: { type: Date, default: Date.now }
 });
 
 // Cleanup old messages

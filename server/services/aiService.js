@@ -122,20 +122,7 @@ export const getGeminiResponse = async (message, chatHistory) => {
   }
 };
 
-function formatResponse(text) {
-  if (!text) return null;
-  
-  return text
-    .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean)
-    .map(line => {
-      if (line.startsWith('- ') || line.startsWith('• ')) return line;
-      if (/^\d+\./.test(line)) return line;
-      return line.replace(/([.!?])\s+(?=[A-Z])/g, '$1\n');
-    })
-    .join('\n');
-}
+
 
 function formatChatHistory(history) {
   if (!history?.length) return '';
@@ -145,21 +132,65 @@ function formatChatHistory(history) {
     .join('\n');
 }
 
+
 function buildGeminiPrompt(message, history) {
-  return `As an expert mental health counselor, provide empathetic support and guidance.
+  return `You are a compassionate mental health assistant. Respond naturally and conversationally, while maintaining professionalism. Keep responses concise and friendly.
 
 Previous Context:
 ${history}
 
 Current Message: "${message}"
 
-Respond with:
-1. Empathy and understanding
-2. Specific observations
-3. Practical suggestions
-4. Follow-up question
+Guidelines:
+- Start with a warm, natural greeting when appropriate
+- Show empathy through conversational language
+- Give practical advice in a friendly way
+- Use casual transitions between topics
+- Include gentle questions to encourage conversation
+- Keep medical terminology minimal unless specifically asked
+- Use markdown formatting for emphasis and structure
 
-Format with clear paragraphs and natural breaks.`;
+Remember to:
+- Highlight emotional words in _italics_
+- Use **bold** for key points
+- Break long responses into readable paragraphs
+- Use bullet points sparingly and naturally
+- End with an open-ended question
+
+Respond in a way that feels like talking to a supportive friend who happens to be a mental health professional.`;
+}
+
+function formatResponse(text) {
+  if (!text) return null;
+  
+  // Split into paragraphs and process each
+  const paragraphs = text.split('\n').map(line => line.trim()).filter(Boolean);
+  
+  return paragraphs.map(line => {
+    // Format therapeutic terms with subtle emphasis
+    line = line.replace(
+      /\b(anxiety|stress|depression|overwhelmed|worried|scared)\b/gi,
+      '_$1_'
+    );
+    
+    // Format gentle emphasis
+    line = line.replace(
+      /\b(remember|important|key takeaway|try this)\b:/gi,
+      '**$1:**'
+    );
+    
+    // Format suggestions naturally
+    if (line.match(/^(Here'?s?( are)? (what|some|a few)|Try these|You could)/i)) {
+      return `\n${line}`;
+    }
+    
+    // Format questions with subtle emphasis
+    if (line.endsWith('?')) {
+      return `\n> ${line}`;
+    }
+    
+    return line;
+  }).join('\n\n');
 }
 
 

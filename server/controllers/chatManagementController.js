@@ -4,21 +4,28 @@ import { logError } from "../utils/logger.js";
 
 export const createNewChat = async (req, res) => {
   try {
-    const { userId, title } = req.body;
+    const { userId, title = "New Chat" } = req.body;
+
+    // Generate title if not provided
+    const defaultTitle = `Chat ${new Date().toLocaleString()}`;
     
     const newChat = new ChatHistory({
       userId,
-      title: title || "New Chat",
+      title: title || defaultTitle,
       messages: []
     });
     await newChat.save();
 
-    // Add chat to user's chats array
+    // Add to user's chats
     await User.findByIdAndUpdate(userId, {
       $push: { chats: newChat._id }
     });
 
-    res.status(201).json(newChat);
+    res.status(201).json({
+      chatId: newChat._id,
+      title: newChat.title,
+      timestamp: newChat.createdAt
+    });
   } catch (error) {
     logError("Create Chat Error:", error);
     res.status(500).json({ error: "Failed to create chat" });
@@ -30,20 +37,60 @@ export const getUserChats = async (req, res) => {
     const { userId } = req.params;
     const { page = 1, limit = 10 } = req.query;
 
-    const chats = await ChatHistory.find({ userId })
-      .select('title lastInteraction messages')
+    const chats = await ChatHistory.find({ userId, isActive: true })
+      .select('_id title messages lastInteraction')
       .sort({ lastInteraction: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+      .lean();
+
+    // Format chat previews with messages
+    const formattedChats = chats.map(chat => ({
+      id: chat._id,
+      title: chat.title,
+      lastMessage: chat.messages[chat.messages.length - 1]?.text || "",
+      messages: chat.messages, // Include full message history
+      messageCount: chat.messages.length,
+      lastInteraction: chat.lastInteraction
+    }));
 
     res.json({
-      chats,
+      chats: formattedChats,
       page: parseInt(page),
       limit: parseInt(limit)
     });
   } catch (error) {
     logError("Get Chats Error:", error);
     res.status(500).json({ error: "Failed to fetch chats" });
+  }
+};
+
+export const switchChat = async (req, res) => {
+  try {
+    const { userId, chatId } = req.params;
+    
+    const chat = await ChatHistory.findOne({ 
+      _id: chatId, 
+      userId,
+      isActive: true 
+    });
+
+    if (!chat) {
+      return res.status(404).json({ error: "Chat not found" });
+    }
+
+    // Return full chat data including all messages
+    res.json({
+      chatId: chat._id,
+      title: chat.title,
+      messages: chat.messages.map(msg => ({
+        text: msg.text,
+        role: msg.role,
+        timestamp: msg.timestamp,
+        source: msg.source
+      }))
+    });
+  } catch (error) {
+    logError("Switch Chat Error:", error);
+    res.status(500).json({ error: "Failed to switch chat" });
   }
 };
 

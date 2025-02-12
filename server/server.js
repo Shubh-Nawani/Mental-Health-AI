@@ -11,11 +11,20 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true
+}));
 
 // Connect to DB and load RiveScript
 await connectDB();
 await loadRiveScript();
+
+
+//testing
+app.get("/", (req, res) => {
+  res.send("Yes this is working");
+});
 
 
 // Import routes
